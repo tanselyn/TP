@@ -3,7 +3,7 @@
 // EECS 281
 // Project 1
 ///////////////////////////////////////////////////////////
-//potato
+
 #include <vector>
 #include <stack>
 #include <queue>
@@ -76,5 +76,6 @@ int main(int argc, char *argv[]) {
     if (useStack) {
         
         
-        return 0;
     }
+    return 0;
+}

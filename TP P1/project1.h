@@ -6,7 +6,6 @@
 #include <vector>
 #include <stack>
 #include <queue>
-#include <deque>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -25,13 +24,17 @@ struct pathElement {
 // Reads map input and stores information into vector
 // Finds the starting tile and initializes pathElement for it
 // Returns false if input is invalid. 
-bool readInMap(std::vector<char> &update, int roomNum, int rowxcol, const char type);
+bool readInMap(std::vector<char> &update, int roomNum, int rowxcol,
+               const char type);
 
 // Adds map tiles as stack elements until ring is found
 // Returns true when ring is found
-bool addStackElements(std::stack<pathElement> &stackElements, std::vector<char> &input, pathElement &start,int roomNum,int rowxcol);
+bool addStackElements(std::stack<pathElement> &stackElements, std::vector<char> &input,
+                      pathElement &start, int roomNum, int rowxcol);
 
 // Adds map tiles as queue elements until ring is found
-bool addQueueElements(std::queue<pathElement> &queueElements, std::vector<char> &input, pathElement &start,int roomNum,int rowxcol);
+// Returns true when ring is found
+bool addQueueElements(std::queue<pathElement> &queueElements, std::vector<char> &input,
+                      pathElement &start, int roomNum, int rowxcol);
 
 #endif

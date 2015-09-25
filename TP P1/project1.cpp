@@ -7,7 +7,6 @@
 #include <vector>
 #include <stack>
 #include <queue>
-#include <deque>
 #include <sstream>
 #include <iostream>
 #include <getopt.h>
@@ -124,7 +123,7 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
 }
 
 bool addStackElements(stack<pathElement> &stackElements, vector<char> &input,
-                      pathElement &start,int roomNum,int rowxcol) {
+                      pathElement &start, int roomNum, int rowxcol) {
     pathElement *next;
     pathElement *previous;
     
@@ -256,15 +255,17 @@ bool addStackElements(stack<pathElement> &stackElements, vector<char> &input,
                     stackElements.push(*next);
                     return true;
                 }
-        }
+            }
         input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
               + previous->colNum] = '~';
+        }
+
     }
     return false;
 }
 
 bool addQueueElements(queue<pathElement> &queueElements, vector<char> &input,
-                      pathElement &start, int roomNum, int rowxcol) {
+                          pathElement &start, int roomNum, int rowxcol) {
     return false;
 }
 
@@ -341,7 +342,7 @@ int main(int argc, char *argv[]) {
     
     if (!useStack) {
 
-        
+        if (addQueueElements(queueElements, input, start, roomNum, rowxcol)) {}
         
     }
     //delete all dynamic memory

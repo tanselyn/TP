@@ -4,8 +4,7 @@
 
 
 #include <vector>
-#include <stack>
-#include <queue>
+#include <deque>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -27,14 +26,24 @@ struct pathElement {
 bool readInMap(std::vector<char> &update, int roomNum, int rowxcol,
                const char type);
 
-// Adds map tiles as stack elements until ring is found
+// Adds all map tiles as deque elements until ring is found
 // Returns true when ring is found
-bool addStackElements(std::stack<pathElement> &stackElements, std::vector<char> &input,
-                      pathElement &start, int roomNum, int rowxcol);
+bool addDequeElements(std::deque<pathElement> &dequeElements, std::vector<char> &input,
+                      pathElement &start, int roomNum, int rowxcol, bool useStack);
 
-// Adds map tiles as queue elements until ring is found
-// Returns true when ring is found
-bool addQueueElements(std::queue<pathElement> &queueElements, std::vector<char> &input,
-                      pathElement &start, int roomNum, int rowxcol);
+// Checks desired tile in vector
+// Returns 1 if tile is walkable space or a portal
+// Returns 2 if tile is the ring
+// Returns 0 if tile is anything else
+int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol);
+
+// Pushes one pathElement onto deque based on the routing
+// scheme selected. If stack, adds to the top of deque.
+// If queue, adds to the back of deque.
+void addElement(std::deque<pathElement> &dequeElements, pathElement &add, bool useStack);
+
+// Changes the char stored in vector to mark it as a
+// tile that has already been added
+void markAdded(std::vector<char> &input, pathElement &added, int rowxcol);
 
 #endif

@@ -5,8 +5,7 @@
 ///////////////////////////////////////////////////////////
 
 #include <vector>
-#include <stack>
-#include <queue>
+#include <deque>
 #include <sstream>
 #include <iostream>
 #include <getopt.h>
@@ -25,6 +24,31 @@ static struct option longopts[] = {
     {"help", no_argument, nullptr, 'h'},
     {nullptr, 0, nullptr, 0}
 };
+
+void addElement(std::deque<pathElement> &dequeElements, pathElement &add, bool useStack) {
+    if (useStack) {
+        dequeElements.push_front(add);
+    }
+    else dequeElements.push_back(add);
+}
+
+int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol) {
+
+        if (input[(room*rowxcol*rowxcol) + (row*rowxcol)
+                  + col] == '.' || isdigit(input[(room*rowxcol*rowxcol)
+                                                 + (row*rowxcol) + col])) {
+            return 1;
+        }
+        else if (input[(room*rowxcol*rowxcol) + (row*rowxcol) + col]  == 'R') {
+            return 2;
+        }
+    return 0;
+}
+
+void markAdded(std::vector<char> &input, pathElement &added, int rowxcol) {
+    input[(added.roomNum*rowxcol*rowxcol) + (added.rowNum*rowxcol)
+          + added.colNum] = '~';
+}
 
 bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
                pathElement &start) {
@@ -122,150 +146,135 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
     return false;
 }
 
-bool addStackElements(stack<pathElement> &stackElements, vector<char> &input,
-                      pathElement &start, int roomNum, int rowxcol) {
+bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
+                      pathElement &start, int roomNum, int rowxcol, bool useStack) {
     pathElement *next;
     pathElement *previous;
     
-    stackElements.push(start);
+    addElement(dequeElements, start, useStack);
     
-    while (!stackElements.empty()) {
-        previous = &stackElements.top();
-        stackElements.pop();
+    while (!dequeElements.empty()) {
+        previous = &dequeElements.front();
+        dequeElements.pop_front();
 
         if (previous->rowNum - 1 >= 0) {
-            if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                       + previous->colNum - rowxcol] == '.' ||
-                isdigit(input[(previous->roomNum*rowxcol*rowxcol) +
-                               (previous->rowNum*rowxcol) + previous->colNum - rowxcol])) {
+            // If tile to the north is walkable space or portal
+            if (checkTile(input, previous->roomNum, previous->rowNum - 1,
+                          previous->colNum, rowxcol) == 1) {
                 next = new pathElement;
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum - 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
+                markAdded(input, *next, rowxcol);
             }
-            else if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                      + previous->colNum - rowxcol] == 'R') {
+            // If tile to the north is the ring
+            else if (checkTile(input, previous->roomNum, previous->rowNum - 1,
+                               previous->colNum, rowxcol) == 2) {
                 next = new pathElement;
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum - 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
                 return true;
             }
-
         }
         if (previous->colNum + 1 < rowxcol) {
-            if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                      + previous->colNum + 1] == '.' ||
-                isdigit(input[(previous->roomNum*rowxcol*rowxcol) +
-                              (previous->rowNum*rowxcol) + previous->colNum + 1])) {
+            if (checkTile(input, previous->roomNum, previous->rowNum,
+                          previous->colNum + 1, rowxcol) == 1) {
                 next = new pathElement;
                 next->colNum = previous->colNum + 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
+                markAdded(input, *next, rowxcol);
             }
-            else if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                      + previous->colNum + 1] == 'R') {
+            else if (checkTile(input, previous->roomNum, previous->rowNum,
+                               previous->colNum + 1, rowxcol)== 2) {
                 next = new pathElement;
                 next->colNum = previous->colNum + 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
                 return true;
             }
-
         }
         if (previous->rowNum + 1 < rowxcol) {
-            if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                      + previous->colNum + rowxcol] == '.' ||
-                isdigit(input[(previous->roomNum*rowxcol*rowxcol) +
-                              (previous->rowNum*rowxcol) + previous->colNum + rowxcol])) {
+            if (checkTile(input, previous->roomNum, previous->rowNum + 1,
+                          previous->colNum, rowxcol) == 1) {
                 next = new pathElement;
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum + 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
+                markAdded(input, *next, rowxcol);
             }
-            else if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                           + previous->colNum + rowxcol] == 'R') {
+            else if (checkTile(input, previous->roomNum, previous->rowNum + 1,
+                               previous->colNum, rowxcol) == 2) {
                 next = new pathElement;
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum + 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
                 return true;
             }
-            
         }
         if (previous->colNum - 1 >= 0) {
-            if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                      + previous->colNum - 1] == '.' ||
-                isdigit(input[(previous->roomNum*rowxcol*rowxcol) +
-                              (previous->rowNum*rowxcol) + previous->colNum - 1])) {
+            if (checkTile(input, previous->roomNum, previous->rowNum,
+                          previous->colNum - 1, rowxcol) == 1) {
                 next = new pathElement;
                 next->colNum = previous->colNum - 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
+                markAdded(input, *next, rowxcol);
             }
-            else if (input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                           + previous->colNum - 1] == 'R') {
+            else if (checkTile(input, previous->roomNum, previous->rowNum,
+                               previous->colNum - 1, rowxcol) == 2) {
                 next = new pathElement;
                 next->colNum = previous->colNum - 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                stackElements.push(*next);
+                addElement(dequeElements, *next, useStack);
                 return true;
             }
-            
         }
         if (isdigit(input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
                           + previous->colNum])) {
             int destination = input[(previous->roomNum*rowxcol*rowxcol) +
-                                    (previous->rowNum*rowxcol) + previous->colNum];
+                                    (previous->rowNum*rowxcol) + previous->colNum] - '0';
             if (destination < roomNum) {
-                if (input[(destination*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                      + previous->colNum] == '.' ||
-                    isdigit(input[(destination*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                                  + previous->colNum])) {
+                if (checkTile(input, destination, previous->rowNum,
+                    previous->colNum, rowxcol) == 1) {
                     next = new pathElement;
                     next->colNum = previous->colNum;
                     next->rowNum = previous->rowNum;
                     next->roomNum = destination;
                     next->source = previous;
-                    stackElements.push(*next);
+                    addElement(dequeElements, *next, useStack);
+                    markAdded(input, *next, rowxcol);
                 }
-                else if (input[(destination*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-                               + previous->colNum] == 'R') {
+                else if (checkTile(input, destination, previous->rowNum,
+                                   previous->colNum, rowxcol) == 2)  {
                     next = new pathElement;
                     next->colNum = previous->colNum;
                     next->rowNum = previous->rowNum;
                     next->roomNum = destination;
                     next->source = previous;
-                    stackElements.push(*next);
+                    addElement(dequeElements, *next, useStack);
                     return true;
                 }
             }
-        input[(previous->roomNum*rowxcol*rowxcol) + (previous->rowNum*rowxcol)
-              + previous->colNum] = '~';
         }
-
     }
-    return false;
-}
-
-bool addQueueElements(queue<pathElement> &queueElements, vector<char> &input,
-                          pathElement &start, int roomNum, int rowxcol) {
     return false;
 }
 
@@ -288,8 +297,7 @@ int main(int argc, char *argv[]) {
     int routeCounter = 0;
     
     pathElement start;
-    stack<pathElement> stackElements;
-    queue<pathElement> queueElements;
+    deque<pathElement> dequeElements;
     
     while (getopt_long(argc, argv, "sqo:h", longopts, &idx) != -1) {
         switch (idx) {
@@ -329,21 +337,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     
-    if (useStack) {
-        if (addStackElements(stackElements, input, start, roomNum, rowxcol)) {
-            cout << "We found the ring!!!\n";
-        }
-        while (!stackElements.empty()) {
-            pathElement *cleanUp = &stackElements.top();
-            delete cleanUp;
-            stackElements.pop();
-        }
+    if (addDequeElements(dequeElements, input, start, roomNum, rowxcol, useStack)) {
+        cout << "We found the ring!!!\n";
     }
-    
-    if (!useStack) {
-
-        if (addQueueElements(queueElements, input, start, roomNum, rowxcol)) {}
-        
+    while (!dequeElements.empty()) {
+        pathElement *cleanUp = &dequeElements.front();
+        delete cleanUp;
+        dequeElements.pop_front();
     }
     //delete all dynamic memory
     

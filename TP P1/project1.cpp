@@ -34,14 +34,14 @@ void addElement(std::deque<pathElement> &dequeElements, pathElement &add, bool u
 
 int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol) {
 
-        if (input[(room*rowxcol*rowxcol) + (row*rowxcol)
-                  + col] == '.' || isdigit(input[(room*rowxcol*rowxcol)
-                                                 + (row*rowxcol) + col])) {
-            return 1;
-        }
-        else if (input[(room*rowxcol*rowxcol) + (row*rowxcol) + col]  == 'R') {
-            return 2;
-        }
+    if (input[(room*rowxcol*rowxcol) + (row*rowxcol)
+                + col] == '.' || isdigit(input[(room*rowxcol*rowxcol)
+                                            + (row*rowxcol) + col])) {
+        return 1;
+    }
+    else if (input[(room*rowxcol*rowxcol) + (row*rowxcol) + col]  == 'R') {
+        return 2;
+    }
     return 0;
 }
 
@@ -84,7 +84,6 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
                         col = 0;
                         row = 0;
                         ++room;
-                        
                     }
 
                 }
@@ -251,7 +250,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                           + previous->colNum])) {
             int destination = input[(previous->roomNum*rowxcol*rowxcol) +
                                     (previous->rowNum*rowxcol) + previous->colNum] - '0';
-            if (destination < roomNum) {
+            if (destination < roomNum && destination != previous->roomNum) {
                 if (checkTile(input, destination, previous->rowNum,
                     previous->colNum, rowxcol) == 1) {
                     next = new pathElement;

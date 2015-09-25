@@ -33,7 +33,7 @@ bool addDequeElements(std::deque<pathElement> &dequeElements, std::vector<char> 
 
 // Checks desired tile in vector
 // Returns 1 if tile is walkable space or a portal
-// Returns 2 if tile is the ring
+// Returns 3 if tile is the ring
 // Returns 0 if tile is anything else
 int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol);
 

@@ -26,18 +26,89 @@ static struct option longopts[] = {
     {nullptr, 0, nullptr, 0}
 };
 
+bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type) {
+    char label;
+    int i = 0;
+    
+    if (type == 'M') {
+        while (cin.get(label)) {
+            if (label == '/' && cin.peek() == '/') {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            else {
+                if (label == '.' || label == '#' || label == 'S' ||
+                    label == 'R' || isdigit(label)) {
+                    update[i] = label;
+                    ++i;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    else if (type == 'L') {
+        char inter;
+        int row, col, room;
+        while (!cin.eof()) {
+            cin >> inter;
+            if (inter == '/' && cin.peek() == '/') {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            else {
+                if (inter != '(') return false;
+                
+                cin >> row;
+                if (row < 0 || row >= rowxcol) return false;
+                
+                cin >> inter;
+                if (inter != ',') return false;
+                
+                cin >> col;
+                if (col < 0 || col >= rowxcol) return false;
+                
+                cin >> inter;
+                if (inter != ',') return false;
+
+                cin >> room;
+                if (room < 0 || room >= roomNum) return false;
+
+                cin >> inter;
+                if (inter != ',') return false;
+                
+                cin >> label;
+                if (label == '.' || label == '#' || label == 'S' ||
+                    label == 'R' || isdigit(label)) {
+                    update[(room*rowxcol*rowxcol) + (row*rowxcol)
+                    + col] = label;
+                    cin >> inter;
+                    if (inter != ')') return false;
+                }
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+void locateStart(std::vector<char> &map, int roomNum, int rowxcol) {
+    
+}
+
 int main(int argc, char *argv[]) {
     // turn off synchronization
     ios_base::sync_with_stdio(false);
-    
-    int idx = 0;
-    int routeCounter = 0;
-    char compare = 'L';
+
     bool useStack = true;
-    bool useMap = true;
+    bool useMapOutput = true;
+    char type;
     
     int roomNum = 0;
     int rowxcol = 0;
+    int idx = 0;
+    int routeCounter = 0;
     
     while (getopt_long(argc, argv, "sqo:h", longopts, &idx) != -1) {
         switch (idx) {
@@ -50,7 +121,7 @@ int main(int argc, char *argv[]) {
                 ++routeCounter;
                 break;
             case 2:
-                useMap = strcmp(&compare, optarg);
+                useMapOutput = (optarg[0] == 'M');
                 break;
             case 3:
                 cout << "Need some help? This program finds paths and stuff. "
@@ -68,10 +139,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     
-    cin >> compare >> rowxcol >> roomNum;
+    cin >> type >> rowxcol >> roomNum;
     vector<char> input(roomNum*rowxcol*rowxcol, '.');
-    
-    
+    if (!readInMap(input, roomNum, rowxcol, type)) {
+        // If invalid input, output error message
+        cerr << "Invalid input. Got yourself some illegal"
+        << "map characters\n";
+        exit(1);
+    }
     
     if (useStack) {
         

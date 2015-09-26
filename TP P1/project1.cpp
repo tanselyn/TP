@@ -179,7 +179,7 @@ bool addDequeElements(deque<pathElement*> &dequeElements, vector<char> &input,
                 next->set_values(previous->roomNum, previous->rowNum - 1, previous->colNum,
                                  input[(previous->roomNum*rowxcol*rowxcol) +
                                        (previous->rowNum*rowxcol)
-                                       + previous->colNum - rowxcol], previous);
+                                       + previous->colNum - rowxcol] - '0', previous);
                 addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
@@ -208,7 +208,7 @@ bool addDequeElements(deque<pathElement*> &dequeElements, vector<char> &input,
                 next->set_values(previous->roomNum, previous->rowNum, previous->colNum + 1,
                                  input[(previous->roomNum*rowxcol*rowxcol) +
                                        (previous->rowNum*rowxcol)
-                                       + previous->colNum + 1], previous);
+                                       + previous->colNum + 1] - '0', previous);
                 addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
@@ -236,7 +236,7 @@ bool addDequeElements(deque<pathElement*> &dequeElements, vector<char> &input,
                 next->set_values(previous->roomNum, previous->rowNum + 1, previous->colNum,
                                  input[(previous->roomNum*rowxcol*rowxcol) +
                                        (previous->rowNum*rowxcol)
-                                       + previous->colNum + rowxcol], previous);
+                                       + previous->colNum + rowxcol] - '0', previous);
                 addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
@@ -264,7 +264,7 @@ bool addDequeElements(deque<pathElement*> &dequeElements, vector<char> &input,
                 next->set_values(previous->roomNum, previous->rowNum, previous->colNum - 1,
                                  input[(previous->roomNum*rowxcol*rowxcol) +
                                        (previous->rowNum*rowxcol)
-                                       + previous->colNum - 1], previous);
+                                       + previous->colNum - 1] - '0', previous);
                 addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
@@ -292,7 +292,7 @@ bool addDequeElements(deque<pathElement*> &dequeElements, vector<char> &input,
                 next->set_values(previous->portal, previous->rowNum, previous->colNum,
                                  input[(previous->portal*rowxcol*rowxcol) +
                                        (previous->rowNum*rowxcol)
-                                       + previous->colNum], previous);
+                                       + previous->colNum] - '0', previous);
                 addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }

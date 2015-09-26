@@ -160,7 +160,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
             // If tile to the north is walkable space or portal
             if (checkTile(input, previous->roomNum, previous->rowNum - 1,
                           previous->colNum, rowxcol) == 1) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum - 1;
                 next->roomNum = previous->roomNum;
@@ -171,7 +171,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
             // If tile to the north is the ring
             else if (checkTile(input, previous->roomNum, previous->rowNum - 1,
                                previous->colNum, rowxcol) == 2) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum - 1;
                 next->roomNum = previous->roomNum;
@@ -183,7 +183,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
         if (previous->colNum + 1 < rowxcol) {
             if (checkTile(input, previous->roomNum, previous->rowNum,
                           previous->colNum + 1, rowxcol) == 1) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum + 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
@@ -193,7 +193,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
             }
             else if (checkTile(input, previous->roomNum, previous->rowNum,
                                previous->colNum + 1, rowxcol)== 2) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum + 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
@@ -205,7 +205,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
         if (previous->rowNum + 1 < rowxcol) {
             if (checkTile(input, previous->roomNum, previous->rowNum + 1,
                           previous->colNum, rowxcol) == 1) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum + 1;
                 next->roomNum = previous->roomNum;
@@ -215,7 +215,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
             }
             else if (checkTile(input, previous->roomNum, previous->rowNum + 1,
                                previous->colNum, rowxcol) == 2) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum;
                 next->rowNum = previous->rowNum + 1;
                 next->roomNum = previous->roomNum;
@@ -227,7 +227,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
         if (previous->colNum - 1 >= 0) {
             if (checkTile(input, previous->roomNum, previous->rowNum,
                           previous->colNum - 1, rowxcol) == 1) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum - 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
@@ -237,7 +237,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
             }
             else if (checkTile(input, previous->roomNum, previous->rowNum,
                                previous->colNum - 1, rowxcol) == 2) {
-                next = new pathElement;
+                next = new pathElement();
                 next->colNum = previous->colNum - 1;
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
@@ -253,7 +253,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
             if (destination < roomNum && destination != previous->roomNum) {
                 if (checkTile(input, destination, previous->rowNum,
                     previous->colNum, rowxcol) == 1) {
-                    next = new pathElement;
+                    next = new pathElement();
                     next->colNum = previous->colNum;
                     next->rowNum = previous->rowNum;
                     next->roomNum = destination;
@@ -263,7 +263,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 }
                 else if (checkTile(input, destination, previous->rowNum,
                                    previous->colNum, rowxcol) == 2)  {
-                    next = new pathElement;
+                    next = new pathElement();
                     next->colNum = previous->colNum;
                     next->rowNum = previous->rowNum;
                     next->roomNum = destination;

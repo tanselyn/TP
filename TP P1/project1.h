@@ -10,14 +10,22 @@
 #include <string>
 #include <cctype>
 
-// Struct to organize tiles in the map
-// Struct includes tile type, column number, row number,
-// and room number of the tile.
-struct pathElement {
+// Class to organize tiles in map
+// Class includes the tile column number, row number,
+// portal destination if tile is a portal, and source
+// tile that lead to current tile.
+class pathElement {
+public:
     int roomNum;
     int rowNum;
     int colNum;
+    
+    // initialized to 100 if tile is not a portal
+    // if tile is portal, initialized to the destination room number
+    int portal;
     pathElement *source;
+    
+    void set_values (int, int, int, int, pathElement*);
 };
 
 // Reads map input and stores information into vector
@@ -32,8 +40,9 @@ bool addDequeElements(std::deque<pathElement*> &dequeElements, std::vector<char>
                       pathElement *start, int roomNum, int rowxcol, bool useStack);
 
 // Checks desired tile in vector
-// Returns 1 if tile is walkable space or a portal
-// Returns 2 if tile is the ring
+// Returns 1 if tile is walkable space
+// Returns 2 if tile is a portal and initializes struct portal
+// Returns 3 if tile is the ring
 // Returns 0 if tile is anything else
 int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol);
 

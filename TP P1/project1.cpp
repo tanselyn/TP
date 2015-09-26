@@ -25,7 +25,7 @@ static struct option longopts[] = {
     {nullptr, 0, nullptr, 0}
 };
 
-void addElement(std::deque<pathElement*> dequeElements, pathElement *add, bool useStack) {
+void addElement(std::deque<pathElement*> &dequeElements, pathElement *add, bool useStack) {
     if (useStack) {
         dequeElements.push_front(add);
     }
@@ -145,7 +145,7 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
     return false;
 }
 
-bool addDequeElements(deque<pathElement*> dequeElements, vector<char> &input,
+bool addDequeElements(deque<pathElement*> &dequeElements, vector<char> &input,
                       pathElement *start, int roomNum, int rowxcol, bool useStack) {
     pathElement *next;
     pathElement *previous;
@@ -295,7 +295,7 @@ int main(int argc, char *argv[]) {
     int idx = 0;
     int routeCounter = 0;
     
-    pathElement *start;
+    pathElement *start = new pathElement();
     deque<pathElement*> dequeElements;
     
     while (getopt_long(argc, argv, "sqo:h", longopts, &idx) != -1) {

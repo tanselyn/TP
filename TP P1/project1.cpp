@@ -25,7 +25,7 @@ static struct option longopts[] = {
     {nullptr, 0, nullptr, 0}
 };
 
-void addElement(std::deque<pathElement> &dequeElements, pathElement &add, bool useStack) {
+void addElement(std::deque<pathElement*> dequeElements, pathElement *add, bool useStack) {
     if (useStack) {
         dequeElements.push_front(add);
     }
@@ -45,13 +45,13 @@ int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol)
     return 0;
 }
 
-void markAdded(std::vector<char> &input, pathElement &added, int rowxcol) {
-    input[(added.roomNum*rowxcol*rowxcol) + (added.rowNum*rowxcol)
-          + added.colNum] = '~';
+void markAdded(std::vector<char> &input, pathElement *added, int rowxcol) {
+    input[(added->roomNum*rowxcol*rowxcol) + (added->rowNum*rowxcol)
+          + added->colNum] = '~';
 }
 
 bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
-               pathElement &start) {
+               pathElement *start) {
     char label;
     int i = 0;
     int col = 0;
@@ -65,9 +65,9 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
             }
             else {
                 if (label == 'S') {
-                    start.roomNum = room;
-                    start.rowNum = row;
-                    start.colNum = col;
+                    start->roomNum = room;
+                    start->rowNum = row;
+                    start->colNum = col;
                 }
                 if (label == '.' || label == '#' || label == 'S' ||
                     label == 'R' || isdigit(label)) {
@@ -129,9 +129,9 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
                     update[(room*rowxcol*rowxcol) + (row*rowxcol)
                            + col] = label;
                     if (label == 'S') {
-                        start.roomNum = room;
-                        start.rowNum = row;
-                        start.colNum = col;
+                        start->roomNum = room;
+                        start->rowNum = row;
+                        start->colNum = col;
                     }
                 }
                 else return false;
@@ -145,15 +145,15 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
     return false;
 }
 
-bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
-                      pathElement &start, int roomNum, int rowxcol, bool useStack) {
+bool addDequeElements(deque<pathElement*> dequeElements, vector<char> &input,
+                      pathElement *start, int roomNum, int rowxcol, bool useStack) {
     pathElement *next;
     pathElement *previous;
     
     addElement(dequeElements, start, useStack);
     
     while (!dequeElements.empty()) {
-        previous = &dequeElements.front();
+        previous = dequeElements.front();
         dequeElements.pop_front();
 
         if (previous->rowNum - 1 >= 0) {
@@ -165,8 +165,8 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum - 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
-                markAdded(input, *next, rowxcol);
+                addElement(dequeElements, next, useStack);
+                markAdded(input, next, rowxcol);
             }
             // If tile to the north is the ring
             else if (checkTile(input, previous->roomNum, previous->rowNum - 1,
@@ -176,7 +176,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum - 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
+                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
@@ -188,8 +188,8 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
-                markAdded(input, *next, rowxcol);
+                addElement(dequeElements, next, useStack);
+                markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous->roomNum, previous->rowNum,
                                previous->colNum + 1, rowxcol)== 2) {
@@ -198,7 +198,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
+                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
@@ -210,8 +210,8 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum + 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
-                markAdded(input, *next, rowxcol);
+                addElement(dequeElements, next, useStack);
+                markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous->roomNum, previous->rowNum + 1,
                                previous->colNum, rowxcol) == 2) {
@@ -220,7 +220,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum + 1;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
+                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
@@ -232,8 +232,8 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
-                markAdded(input, *next, rowxcol);
+                addElement(dequeElements, next, useStack);
+                markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous->roomNum, previous->rowNum,
                                previous->colNum - 1, rowxcol) == 2) {
@@ -242,7 +242,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                 next->rowNum = previous->rowNum;
                 next->roomNum = previous->roomNum;
                 next->source = previous;
-                addElement(dequeElements, *next, useStack);
+                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
@@ -258,8 +258,8 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                     next->rowNum = previous->rowNum;
                     next->roomNum = destination;
                     next->source = previous;
-                    addElement(dequeElements, *next, useStack);
-                    markAdded(input, *next, rowxcol);
+                    addElement(dequeElements, next, useStack);
+                    markAdded(input, next, rowxcol);
                 }
                 else if (checkTile(input, destination, previous->rowNum,
                                    previous->colNum, rowxcol) == 2)  {
@@ -268,7 +268,7 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> &input,
                     next->rowNum = previous->rowNum;
                     next->roomNum = destination;
                     next->source = previous;
-                    addElement(dequeElements, *next, useStack);
+                    addElement(dequeElements, next, useStack);
                     return true;
                 }
             }
@@ -295,8 +295,8 @@ int main(int argc, char *argv[]) {
     int idx = 0;
     int routeCounter = 0;
     
-    pathElement start;
-    deque<pathElement> dequeElements;
+    pathElement *start;
+    deque<pathElement*> dequeElements;
     
     while (getopt_long(argc, argv, "sqo:h", longopts, &idx) != -1) {
         switch (idx) {
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
         cout << "We found the ring!!!\n";
     }
     while (!dequeElements.empty()) {
-        pathElement *cleanUp = &dequeElements.front();
+        pathElement *cleanUp = dequeElements.front();
         delete cleanUp;
         dequeElements.pop_front();
     }

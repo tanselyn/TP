@@ -16,8 +16,7 @@
 // tile that lead to current tile.
 // Includes a function setValues that initializes
 // all member variables.
-class pathElement {
-public:
+struct mapElement {
     int roomNum;
     int rowNum;
     int colNum;
@@ -26,20 +25,37 @@ public:
     // 100 if tile is not a portal
     int portal;
     
+    // Constructors
+    mapElement(): roomNum(0), rowNum(0), colNum(0), portal(0) {}
+    mapElement(int x,int y,int z,int p) {
+        roomNum = x;
+        rowNum = y;
+        colNum = z;
+        portal = p;
+    }
+};
+
+struct pathElement {
+    char direction;
+    mapElement info;
+
     // Constructor
-    pathElement (int,int,int,int);
+    pathElement(char d) {
+        direction = d;
+    }
 };
 
 // Reads map input and stores information into vector
-// Finds the starting tile and initializes pathElement for it
+// Finds the starting tile and initializes mapElement for it
 // Returns false if input is invalid. 
 bool readInMap(std::vector<char> &update, int roomNum, int rowxcol,
-               const char type, pathElement &start);
+               const char type, mapElement &start);
 
 // Adds all map tiles as deque elements until ring is found
 // Returns true when ring is found
-bool addDequeElements(std::deque<pathElement> &dequeElements, std::vector<char> input,
-                      pathElement &start, int roomNum, int rowxcol, bool useStack);
+bool addDequeElements(std::deque<mapElement> &dequeElements, std::vector<char> input,
+                      std::vector<char> &path, mapElement &start, int roomNum,
+                      int rowxcol, bool useStack);
 
 // Checks desired tile in vector
 // Returns 1 if tile is walkable space
@@ -48,16 +64,16 @@ bool addDequeElements(std::deque<pathElement> &dequeElements, std::vector<char> 
 // Returns 0 if tile is anything else
 int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol);
 
-// Pushes one pathElement onto deque based on the routing
+// Pushes one mapElement onto deque based on the routing
 // scheme selected. If stack, adds to the top of deque.
 // If queue, adds to the back of deque.
-void addElement(std::deque<pathElement> &dequeElements, pathElement &add, bool useStack);
+void addElement(std::deque<mapElement> &dequeElements, mapElement &add, bool useStack);
 
 // Changes the char stored in vector to mark it as a
 // tile that has already been added
-void markAdded(std::vector<char> &input, pathElement &added, int rowxcol);
+void markAdded(std::vector<char> &input, mapElement &added, int rowxcol);
 
-char findPrevious(std::vector<char> &input, pathElement previous, int roomNum,
-                  int rowxcol);
+pathElement tracePrevious(std::vector<char> &path, std::stack<pathElement> &trace,
+                          mapElement current, int roomNum, int rowxcol);
 
 #endif

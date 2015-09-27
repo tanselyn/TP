@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <deque>
+#include <stack>
 #include <sstream>
 #include <iostream>
 #include <getopt.h>
@@ -25,14 +26,7 @@ static struct option longopts[] = {
     {nullptr, 0, nullptr, 0}
 };
 
-pathElement::pathElement(int x, int y, int z, int p) {
-    roomNum = x;
-    rowNum = y;
-    colNum = z;
-    portal = p;
-}
-
-void addElement(std::deque<pathElement> &dequeElements, pathElement &add, bool useStack) {
+void addElement(std::deque<mapElement> &dequeElements, mapElement &add, bool useStack) {
     if (useStack) {
         dequeElements.push_front(add);
     }
@@ -53,13 +47,13 @@ int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol)
     return 0;
 }
 
-void markAdded(std::vector<char> &input, pathElement &added, int rowxcol) {
+void markAdded(std::vector<char> &input, mapElement &added, int rowxcol) {
     input[(added.roomNum*rowxcol*rowxcol) + (added.rowNum*rowxcol)
           + added.colNum] = '~';
 }
 
 bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
-               pathElement &start) {
+               mapElement &start) {
     char label;
     int i = 0;
     int col = 0;
@@ -153,10 +147,11 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
     return false;
 }
 
-bool addDequeElements(deque<pathElement> &dequeElements, vector<char> input,
-                      pathElement &start, int roomNum, int rowxcol, bool useStack) {
-    pathElement next(0, 0, 0, 0);
-    pathElement previous(0, 0, 0, 0);
+bool addDequeElements(deque<mapElement> &dequeElements, vector<char> input,
+                      vector<char> &path, mapElement &start, int roomNum,
+                      int rowxcol, bool useStack) {
+    mapElement next(0, 0, 0, 0);
+    mapElement previous(0, 0, 0, 0);
     
     addElement(dequeElements, start, useStack);
     
@@ -165,116 +160,107 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> input,
         dequeElements.pop_front();
 
         if (previous.rowNum - 1 >= 0) {
+            mapElement next (previous.roomNum, previous.rowNum - 1, previous.colNum, 100);
+            addElement(dequeElements, next, useStack);
+            path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
+                 next.colNum] = 'n';
+            
             // If tile to the north is walkable space
             if (checkTile(input, previous.roomNum, previous.rowNum - 1,
                           previous.colNum, rowxcol) == 1) {
-                pathElement next (previous.roomNum, previous.rowNum - 1, previous.colNum, 100);
-                addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
             // If the tile to the north is a portal
             else if (checkTile(input, previous.roomNum, previous.rowNum - 1,
                                previous.colNum, rowxcol) == 2) {
-                pathElement next (previous.roomNum, previous.rowNum - 1, previous.colNum,
-                                  input[(previous.roomNum*rowxcol*rowxcol) +
-                                        (previous.rowNum*rowxcol) + previous.colNum -
-                                        rowxcol] - '0');
-                addElement(dequeElements, next, useStack);
+                next.portal = input[(next.roomNum*rowxcol*rowxcol) +
+                                        (next.rowNum*rowxcol) + next.colNum] - '0';
                 markAdded(input, next, rowxcol);
+
             }
             // If tile to the north is the ring
             else if (checkTile(input, previous.roomNum, previous.rowNum - 1,
                                previous.colNum, rowxcol) == 3) {
-                pathElement next (previous.roomNum, previous.rowNum - 1, previous.colNum, 100);
-                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
         if (previous.colNum + 1 < rowxcol) {
+            mapElement next (previous.roomNum, previous.rowNum, previous.colNum + 1, 100);
+            addElement(dequeElements, next, useStack);
+            path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
+                 next.colNum] = 'e';
             if (checkTile(input, previous.roomNum, previous.rowNum,
                           previous.colNum + 1, rowxcol) == 1) {
-                pathElement next (previous.roomNum, previous.rowNum, previous.colNum + 1, 100);
-                addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.roomNum, previous.rowNum,
                                previous.colNum + 1, rowxcol) == 2) {
-                pathElement next (previous.roomNum, previous.rowNum, previous.colNum + 1,
-                                  input[(previous.roomNum*rowxcol*rowxcol) +
-                                        (previous.rowNum*rowxcol) + previous.colNum + 1] - '0');
-                addElement(dequeElements, next, useStack);
+                next.portal = input[(next.roomNum*rowxcol*rowxcol) +
+                                    (next.rowNum*rowxcol) + next.colNum] - '0';
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.roomNum, previous.rowNum,
                                previous.colNum + 1, rowxcol)== 3) {
-                pathElement next (previous.roomNum, previous.rowNum, previous.colNum + 1, 100);
-                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
         if (previous.rowNum + 1 < rowxcol) {
+            mapElement next (previous.roomNum, previous.rowNum + 1, previous.colNum, 100);
+            addElement(dequeElements, next, useStack);
+            path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
+                 next.colNum] = 's';
             if (checkTile(input, previous.roomNum, previous.rowNum + 1,
                           previous.colNum, rowxcol) == 1) {
-                pathElement next (previous.roomNum, previous.rowNum + 1, previous.colNum, 100);
-                addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.roomNum, previous.rowNum + 1,
                                previous.colNum, rowxcol) == 2) {
-                pathElement next (previous.roomNum, previous.rowNum + 1, previous.colNum,
-                                  input[(previous.roomNum*rowxcol*rowxcol) +
-                                        (previous.rowNum*rowxcol) + previous.colNum + rowxcol] - '0');
-                addElement(dequeElements, next, useStack);
+                next.portal = input[(next.roomNum*rowxcol*rowxcol) +
+                                    (next.rowNum*rowxcol) + next.colNum] - '0';
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.roomNum, previous.rowNum + 1,
                                previous.colNum, rowxcol) == 3) {
-                pathElement next (previous.roomNum, previous.rowNum + 1, previous.colNum, 100);
-                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
         if (previous.colNum - 1 >= 0) {
+            mapElement next (previous.roomNum, previous.rowNum, previous.colNum - 1, 100);
+            addElement(dequeElements, next, useStack);
+            path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
+                 next.colNum] = 'w';
             if (checkTile(input, previous.roomNum, previous.rowNum,
                           previous.colNum - 1, rowxcol) == 1) {
-                pathElement next (previous.roomNum, previous.rowNum, previous.colNum - 1, 100);
-                addElement(dequeElements, next, useStack);
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.roomNum, previous.rowNum,
                                previous.colNum - 1, rowxcol) == 2) {
-                pathElement next (previous.roomNum, previous.rowNum, previous.colNum - 1,
-                                  input[(previous.roomNum*rowxcol*rowxcol) +
-                                        (previous.rowNum*rowxcol) + previous.colNum - 1] - '0');
-                addElement(dequeElements, next, useStack);
+                next.portal = input[(next.roomNum*rowxcol*rowxcol) +
+                                    (next.rowNum*rowxcol) + next.colNum] - '0';
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.roomNum, previous.rowNum,
                                previous.colNum - 1, rowxcol) == 3) {
-                pathElement next (previous.roomNum, previous.rowNum, previous.colNum - 1, 100);
-                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
         if (previous.portal < roomNum && previous.portal != previous.roomNum) {
+            mapElement next (previous.portal, previous.rowNum, previous.colNum, 100);
+            addElement(dequeElements, next, useStack);
+            path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
+                 next.colNum] = previous.roomNum + '0';
             if (checkTile(input, previous.portal, previous.rowNum,
-                previous.colNum, rowxcol) == 1) {
-                pathElement next (previous.portal, previous.rowNum, previous.colNum, 100);
-                addElement(dequeElements, next, useStack);
+                        previous.colNum, rowxcol) == 1) {
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.portal, previous.rowNum,
                                            previous.colNum, rowxcol) == 2) {
-                pathElement next (previous.portal, previous.rowNum, previous.colNum,
-                                  input[(previous.portal*rowxcol*rowxcol) +
-                                        (previous.rowNum*rowxcol) + previous.colNum] - '0');
-                addElement(dequeElements, next, useStack);
+                next.portal = input[(next.roomNum*rowxcol*rowxcol) +
+                                    (next.rowNum*rowxcol) + next.colNum] - '0';
                 markAdded(input, next, rowxcol);
             }
             else if (checkTile(input, previous.portal, previous.rowNum,
                                 previous.colNum, rowxcol) == 3)  {
-                pathElement next (previous.portal, previous.rowNum, previous.colNum, 100);
-                addElement(dequeElements, next, useStack);
                 return true;
             }
         }
@@ -282,9 +268,65 @@ bool addDequeElements(deque<pathElement> &dequeElements, vector<char> input,
     return false;
 }
 
-char findPrevious(std::vector<char> &input, pathElement previous, int roomNum,
-                  int rowxcol) {
-
+pathElement tracePrevious(std::vector<char> &path, stack<pathElement> &trace,
+                          mapElement current, int roomNum, int rowxcol) {
+    char direction = path[(current.roomNum*rowxcol*rowxcol) +
+                          (current.rowNum*rowxcol) + current.colNum];
+    
+    if (direction == 'S') {
+        pathElement previous(direction);
+        previous.info.roomNum = current.roomNum;
+        previous.info.rowNum = current.rowNum;
+        previous.info.colNum = current.colNum;
+        previous.info.portal = 100;
+        return previous;
+    }
+    else if (direction == 'n') {
+        pathElement previous(direction);
+        previous.info.roomNum = current.roomNum;
+        previous.info.rowNum = current.rowNum + 1;
+        previous.info.colNum = current.colNum;
+        previous.info.portal = 100;
+        current.rowNum = current.rowNum + 1;
+        trace.push(tracePrevious(path, trace, current, roomNum, rowxcol));
+    }
+    else if (direction == 'e') {
+        pathElement previous(direction);
+        previous.info.roomNum = current.roomNum;
+        previous.info.rowNum = current.rowNum;
+        previous.info.colNum = current.colNum - 1;
+        previous.info.portal = 100;
+        current.colNum = current.colNum - 1;
+        trace.push(tracePrevious(path, trace, current, roomNum, rowxcol));
+    }
+    else if (direction == 's') {
+        pathElement previous(direction);
+        previous.info.roomNum = current.roomNum;
+        previous.info.rowNum = current.rowNum - 1;
+        previous.info.colNum = current.colNum;
+        previous.info.portal = 100;
+        current.rowNum = current.rowNum - 1;
+        trace.push(tracePrevious(path, trace, current, roomNum, rowxcol));
+    }
+    else if (direction == 'w') {
+        pathElement previous(direction);
+        previous.info.roomNum = current.roomNum;
+        previous.info.rowNum = current.rowNum;
+        previous.info.colNum = current.colNum + 1;
+        previous.info.portal = 100;
+        current.colNum = current.colNum + 1;
+        trace.push(tracePrevious(path, trace, current, roomNum, rowxcol));
+    }
+    else if (isdigit(direction)) {
+        pathElement previous(direction);
+        previous.info.roomNum = direction - '0';
+        previous.info.rowNum = current.rowNum;
+        previous.info.colNum = current.colNum;
+        previous.info.portal = direction;
+        current.roomNum = direction - '0';
+        trace.push(tracePrevious(path, trace, current, roomNum, rowxcol));
+    }
+    return pathElement('a');
 }
 
 int main(int argc, char *argv[]) {
@@ -307,8 +349,10 @@ int main(int argc, char *argv[]) {
     int idx = 0;
     int routeCounter = 0;
     
-    pathElement start(0, 0, 0, 0);
-    deque<pathElement> dequeElements;
+    mapElement start;
+    mapElement end;
+    deque<mapElement> dequeElements;
+    stack<pathElement> trace;
     
     while (getopt_long(argc, argv, "sqo:h", longopts, &idx) != -1) {
         switch (idx) {
@@ -341,6 +385,7 @@ int main(int argc, char *argv[]) {
     
     cin >> type >> rowxcol >> roomNum;
     vector<char> input(roomNum*rowxcol*rowxcol, '.');
+    vector<char> path(roomNum*rowxcol*rowxcol, '.');
     if (!readInMap(input, roomNum, rowxcol, type, start)) {
         // If invalid input, output error message
         cerr << "Invalid input. Got yourself some illegal "
@@ -348,16 +393,65 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     
-    if (addDequeElements(dequeElements, input, start, roomNum, rowxcol, useStack)) {
-       // end = dequeElements.front();
-      //  os << rowxcol << '\n' << roomNum << '\n';
-   //     if (useMapOutput) {
-        
-        cout << "WE FOUND THE RING\n";
-    }
- //   else // output the same thing as the input (without path taken shown)
+    if (addDequeElements(dequeElements, input, path, start, roomNum, rowxcol, useStack)) {
 
-    //delete all dynamic memory
+        os << rowxcol << '\n' << roomNum << '\n';
+        if (useStack) end = dequeElements.front();
+        else end = dequeElements.back();
+        tracePrevious(path, trace, end, roomNum, rowxcol);
+        
+        if (useMapOutput) {
+            while (!trace.empty()) {
+                pathElement check = trace.top();
+                trace.pop();
+                input[(check.info.roomNum*rowxcol*rowxcol) + (check.info.rowNum*rowxcol)
+                      + check.info.colNum] = check.direction;
+            }
+            for (int i = 0; i < path.size(); ++i) {
+                if (i % (rowxcol*rowxcol) == 0) {
+                    os << '\n' << "//room " << (i + 1) / (rowxcol*rowxcol) << '\n'
+                    << input[i];
+                }
+                else if (i % rowxcol == 0) {
+                    os << '\n' << input[i];
+                }
+                else os << input[i];
+            }
+        }
+        else {
+            os << "//path taken" << '\n';
+            while (!trace.empty()) {
+                pathElement check = trace.top();
+                trace.pop();
+                os << "(" << check.info.rowNum << "," << check.info.colNum
+                    << "," << check.info.roomNum << "," << check.direction
+                    << ")" << '\n';
+            }
+            
+        }
+    }
     
+    // Ring is not found
+    else {
+        os << rowxcol << '\n' << roomNum << '\n';
+        // output the same thing as the input (without path taken shown)
+        if (useMapOutput) {
+            for (int i = 0; i < input.size(); ++i) {
+                if (i % (rowxcol*rowxcol) == 0) {
+                    os << '\n' << "//room " << (i + 1) / (rowxcol*rowxcol) << '\n'
+                        << input[i];
+                }
+                else if (i % rowxcol == 0) {
+                    os << '\n' << input[i];
+                }
+                else os << input[i];
+            }
+        }
+        else{
+            os << "//path taken" << '\n';
+        }
+    }
+
+    cout << os.str();
     return 0;
 }

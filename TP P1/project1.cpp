@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <limits>
 #include "project1.h"
+#include <fstream>
 
 using namespace std;
 
@@ -64,6 +65,9 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
         while (cin >> label) {
             if (label == '/' && cin.peek() == '/') {
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                if (cin.eof()) {
+                    return true;
+                }
             }
             else {
                 if (label == 'S') {
@@ -103,6 +107,9 @@ bool readInMap(vector<char> &update, int roomNum, int rowxcol, const char type,
             cin >> inter;
             if (inter == '/' && cin.peek() == '/') {
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                if (cin.eof()) {
+                    return true;
+                }
             }
             else {
                 if (inter != '(') return cin.eof();
@@ -332,6 +339,8 @@ pathElement tracePrevious(std::vector<char> &path, stack<pathElement> &trace,
 int main(int argc, char *argv[]) {
     // turn off synchronization
     ios_base::sync_with_stdio(false);
+    ifstream arq(getenv("file"));
+    cin.rdbuf(arq.rdbuf());
     
     ostringstream os;
     

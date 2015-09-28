@@ -69,6 +69,24 @@ int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol)
 // If queue, adds to the back of deque.
 void addElement(std::deque<mapElement> &dequeElements, mapElement &add, bool useStack);
 
+// Processes tile next by adding it to the deque and
+// changing vector path to accomodate the tile.
+// Path represents the north direction taken to get to tile.
+void processTileNorth(std::deque<mapElement> &dequeElements, std::vector<char> &path,
+              mapElement &next, mapElement &previous, bool useStack, int rowxcol);
+
+void processTileEast(std::deque<mapElement> &dequeElements, std::vector<char> &path,
+                     mapElement &next, mapElement &previous, bool useStack, int rowxcol);
+
+void processTileSouth(std::deque<mapElement> &dequeElements, std::vector<char> &path,
+                      mapElement &next, mapElement &previous, bool useStack, int rowxcol);
+
+void processTileWest(std::deque<mapElement> &dequeElements, std::vector<char> &path,
+                     mapElement &next, mapElement &previous, bool useStack, int rowxcol);
+
+void processPortal(std::deque<mapElement> &dequeElements, std::vector<char> &path,
+                   mapElement &next, mapElement &previous, bool useStack, int rowxcol);
+
 // Changes the char stored in vector to mark it as a
 // tile that has already been added
 void markAdded(std::vector<char> &input, mapElement &added, int rowxcol);

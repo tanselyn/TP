@@ -27,13 +27,6 @@ static struct option longopts[] = {
     {nullptr, 0, nullptr, 0}
 };
 
-void addElement(std::deque<mapElement> &dequeElements, const mapElement &add, bool useStack) {
-    if (useStack) {
-        dequeElements.push_front(add);
-    }
-    else dequeElements.push_back(add);
-}
-
 int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol) {
     
     if (input[(room*rowxcol*rowxcol) + (row*rowxcol) + col] == '.') {
@@ -50,37 +43,57 @@ int checkTile(std::vector<char> &input, int room, int row, int col, int rowxcol)
 
 void processTileNorth(deque<mapElement> &dequeElements, vector<char> &path,
               mapElement &next, mapElement &previous, bool useStack, int rowxcol) {
-    addElement(dequeElements, next, useStack);
+
     path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
          next.colNum] = 'n';
+    if (useStack) {
+        dequeElements.push_front(next);
+    }
+    else dequeElements.push_back(next);
 }
 
 void processTileEast(deque<mapElement> &dequeElements, vector<char> &path,
                       mapElement &next, mapElement &previous, bool useStack, int rowxcol) {
-    addElement(dequeElements, next, useStack);
+
     path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
          next.colNum] = 'e';
+    if (useStack) {
+        dequeElements.push_front(next);
+    }
+    else dequeElements.push_back(next);
 }
 
 void processTileSouth(deque<mapElement> &dequeElements, vector<char> &path,
                       mapElement &next, mapElement &previous, bool useStack, int rowxcol) {
-    addElement(dequeElements, next, useStack);
+
     path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
          next.colNum] = 's';
+    if (useStack) {
+        dequeElements.push_front(next);
+    }
+    else dequeElements.push_back(next);
 }
 
 void processTileWest(deque<mapElement> &dequeElements, vector<char> &path,
                       mapElement &next, mapElement &previous, bool useStack, int rowxcol) {
-    addElement(dequeElements, next, useStack);
+
     path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
          next.colNum] = 'w';
+    if (useStack) {
+        dequeElements.push_front(next);
+    }
+    else dequeElements.push_back(next);
 }
 
 void processPortal(deque<mapElement> &dequeElements, vector<char> &path,
                       mapElement &next, mapElement &previous, bool useStack, int rowxcol) {
-    addElement(dequeElements, next, useStack);
+
     path[(next.roomNum*rowxcol*rowxcol) + (next.rowNum*rowxcol) +
          next.colNum] = previous.roomNum + '0';
+    if (useStack) {
+        dequeElements.push_front(next);
+    }
+    else dequeElements.push_back(next);
 }
 
 void markAdded(std::vector<char> &input, const mapElement &added, int rowxcol) {
@@ -189,7 +202,10 @@ bool addDequeElements(deque<mapElement> &dequeElements, vector<char> input,
     mapElement next;
     mapElement previous;
 
-    addElement(dequeElements, start, useStack);
+    if (useStack) {
+        dequeElements.push_front(start);
+    }
+    else dequeElements.push_back(start);
     
     while (!dequeElements.empty()) {
         previous = dequeElements.front();

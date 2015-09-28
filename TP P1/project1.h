@@ -51,12 +51,6 @@ struct pathElement {
 bool readInMap(std::vector<char> &update, int roomNum, int rowxcol,
                const char type, mapElement &start);
 
-// Adds all map tiles as deque elements until ring is found
-// Returns true when ring is found
-bool addDequeElements(std::deque<mapElement> &dequeElements, std::vector<char> input,
-                      std::vector<char> &path, mapElement &start, int roomNum,
-                      int rowxcol, bool useStack);
-
 // Checks desired tile in vector
 // Returns 1 if tile is walkable space
 // Returns 2 if tile is a portal and initializes struct portal
